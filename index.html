@@ -1,0 +1,265 @@
+﻿<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	</head>
+<body>
+	<p>Год:   <input type = "text" id = "year" size = 4></p>
+	<p>Месяц: <input type = "text" id = "month" size = 2></p>
+	<p>Как показать информацию:</p>
+	<p><input name="dzen" type="radio" value="full_year">Весь год</p>
+    <p><input name="dzen" type="radio" value="from_month">Начиная с месяца</p>
+	<p><input name="dzen" type="radio" value="only_month" checked>Только месяц</p>
+	<p>Количество человек: <input type = "text" id = "cou" size = 2> <input type = "button" value = "Применить" onClick = "create_table()" </p>
+	<p id = "lolol"></p>
+	<script>
+		function create_table(){
+			document.getElementById('lolol').innerHTML = "";
+			var count = Number(document.getElementById("cou").value);
+			 document.getElementById('lolol').innerHTML += "Имя, Количество нарядов в будни, субботу,  воскресенье<br><br>";
+			for(var i = 0; i < count; i++){
+				if(i < 9) document.getElementById('lolol').innerHTML += (i+1) + "." + "        " + "<input type = text size = 15 name = 'names'> <input type = text size = 2 name = 'mon'> <input type = text size = 2 name = 'sat'> <input type = text size = 2 name = 'sun'><br><br>";
+				else document.getElementById('lolol').innerHTML += (i+1) + ".  <input type = text size = 15 name = 'names'> <input type = text size = 2 name = 'mon'> <input type = text size = 2 name = 'sat'> <input type = text size = 2 name = 'sun'><br><br>";
+			}			
+		}
+	</script>
+
+	<p><input type = "button" value = "Show" onclick="start()"></p>
+	<script>
+		//Press variables
+		function get_month(month){
+			if(month == 0) return "Январь";
+			else if(month == 1) return "Февраль";
+			else if(month == 2) return "Март";
+			else if(month == 3) return "Апрель";
+			else if(month == 4) return "Май";
+			else if(month == 5) return "Июнь";
+			else if(month == 6) return "Июль";
+			else if(month == 7) return "Август";
+			else if(month == 8) return "Сентябрь";
+			else if(month == 9) return "Октябрь";
+			else if(month == 10) return "Ноябрь";
+			else return "Декабрь";
+		}
+		function start(){
+			var mon = document.getElementsByName("mon");
+			var sat = document.getElementsByName("sat");
+			var sun = document.getElementsByName("sun");
+			var type = document.getElementsByName("dzen");
+			if(type[0].checked) type = type[0].value;
+			else if(type[1].checked) type = type[1].value;
+			else type = type[2].value;
+			var namess = document.getElementsByName("names");
+			var names = [];
+			for(var i = 0; i < namess.length; i++) names.push(namess[i].value);
+			var scores_of_duty = [];
+			//Get month
+			var year = Number(document.getElementById("year").value);
+			var month = Number(document.getElementById("month").value) - 1;
+			var data = new Date(year, month);
+			var day_of_week = data.getDay();
+			//Empty list with scores
+			for(var i = 0; i < names.length; i++){
+				var a = {};
+				a.mon = mon[i].value;
+				a.sat = sat[i].value;
+				a.sun = sun[i].value;
+				alert(Number(a.sun));
+				scores_of_duty.push(a);
+			}
+			var count_of_duties_on_month = [];
+			for(var i = 0; i < names.length; i++){
+				count_of_duties_on_month.push(0);
+			}
+			document.write("<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'></head><body>");
+			if(type == "full_year"){
+				for(var month = 0; month < 12; month++){
+					document.write("<p align = center>Наряды на <b>" + get_month(month) + " " + year + " г</b>.</p>");
+					var data = new Date(year, month);
+					var day_of_week = data.getDay();
+					create(names, scores_of_duty, month, day_of_week, count_of_duties_on_month);
+					document.write("<br>");
+					get_information(names, scores_of_duty);
+					for(var i = 0; i < names.length; i++){
+						count_of_duties_on_month[i] = 0;
+					}
+					document.write("<br>");
+				}
+			}
+			else if(type == "from_month"){
+				for(var j = 0; month < 12; month++){
+					document.write("<p align = center>Наряды на <b>" + get_month(month) + " " + year + " г</b>.</p>");
+					var data = new Date(year, month);
+					var day_of_week = data.getDay();
+					create(names, scores_of_duty, month, day_of_week, count_of_duties_on_month);
+					document.write("<br>");
+					get_information(names, scores_of_duty);
+					for(var i = 0; i < names.length; i++){
+						count_of_duties_on_month[i] = 0;
+					}
+					document.write("<br>");
+				}
+			}
+			else{
+				document.write("<p align = center>Наряды на <b>" + get_month(month) + " " + year + " г</b>.</p>");
+				var data = new Date(year, month);
+				var day_of_week = data.getDay();
+				create(names, scores_of_duty, month, day_of_week, count_of_duties_on_month);
+				document.write("<br>");
+				get_information(names, scores_of_duty);
+				for(var i = 0; i < names.length; i++){
+					count_of_duties_on_month[i] = 0;
+				}
+				document.write("<br>");
+			}
+			document.write("</body></html>");
+		}
+		//Main function
+		function create(names, scores_of_duty, month, day_of_week, count_of_duties_on_month){
+			//variables
+			//document.write("<html><body>");
+			var count_people = names.length;
+			var last_date_of_duty = new Array(count_people);
+			for (var i = 0; i < count_people; i++) last_date_of_duty[i] = -2000;
+			//weekends
+			var saturdays = [];
+			var sundays = [];
+			
+			//Get days of month
+			var days_of_month = get_days_of_month(month); 
+
+			//Form list of saturdays and sundays and mondays, ebat ih v rot...
+			//Take number of day and push in need array;
+			for(var i = 1; i <= days_of_month; i++){
+				if(day_of_week == 6){
+					saturdays.push(i);
+					day_of_week = 0;
+				}
+					
+				else if(day_of_week == 0){
+					sundays.push(i);
+					day_of_week++;
+				}
+				//other
+				else day_of_week++;
+			}
+			
+			//Form list of dates by id
+			var list_of_dates = form_list(days_of_month, scores_of_duty, saturdays, sundays, last_date_of_duty, count_of_duties_on_month);
+			
+			//Header of table
+			document.write("<table border = 2 align = center><tr><td>#</td><td>Name</td>");
+			//Dates
+			for(var i = 1; i <= days_of_month; i++){
+				document.write("<td>" + i + "." + (month+1) + "</td>");
+			}
+			document.write("</tr>");
+
+			//Table with dates...
+			for(var i = 0; i < count_people; i++){
+				document.write("<tr><td>" + (i+1) + "</td><td>" + names[i] + "</td>");
+				for(var j = 1; j <= days_of_month; j++){
+					var flag = false;
+					for(var z = 0; z < list_of_dates[i].length; z++){
+						if(list_of_dates[i][z] == j){
+							flag = true;
+							break;
+						}
+					}
+					if(flag == true) document.write("<td>+</td>");
+					else document.write("<td></td>");
+				}
+				document.write("</tr>");
+			}
+			document.write("</table>");
+		}
+
+		//Get man's id which have a minimal scores
+		function get_min_score_id(scores_of_duty, day, saturdays, sundays, last_date_of_duty, count_of_duties_on_month){
+			var min = 2000, id = -1;
+			if(check_score_of_category(day, saturdays, sundays) == 1){
+				for(var i = 0; i < scores_of_duty.length; i++){
+
+					if(scores_of_duty[i].sat < min && count_of_duties_on_month[i] < 3){
+						if(Math.abs(day - last_date_of_duty[i]) < (scores_of_duty.length / 2)) continue;
+						min = scores_of_duty[i].sat;
+						id = i;
+					}
+				}
+				count_of_duties_on_month[id]++;
+				scores_of_duty[id].sat++;
+			}
+
+			else if(check_score_of_category(day, saturdays, sundays) == 2){
+				for(var i = 0; i < scores_of_duty.length; i++){
+					
+					if(scores_of_duty[i].sun < min && count_of_duties_on_month[i] < 3){
+						if(Math.abs(day - last_date_of_duty[i]) < (scores_of_duty.length / 2)) continue;
+						min = scores_of_duty[i].sun;
+						id = i;
+					}
+				}
+				count_of_duties_on_month[id]++;
+				scores_of_duty[id].sun++;
+			}
+
+			else{
+				for(var i = 0; i < scores_of_duty.length; i++){
+					
+					if(scores_of_duty[i].mon < min && count_of_duties_on_month[i] < 3){
+						if(Math.abs(day - last_date_of_duty[i]) < (scores_of_duty.length / 2)) continue;
+						min = scores_of_duty[i].mon;
+						id = i;
+					}
+				}
+				count_of_duties_on_month[id]++;
+				scores_of_duty[id].mon++;
+			}
+			last_date_of_duty[id] = day;
+    		return id;
+		}
+		
+		function get_days_of_month(month){
+			if(month == 0 || month == 2 || month == 4 || month == 6 || month == 7 || month == 9 || month == 11) days_of_month = 31;
+			else if(month == 1 && (year == 2020 || year == 2024 || year == 2028)) days_of_month = 29;
+            else if(month == 1 && (year != 2020 || year != 2024 || year != 2028)) days_of_month = 28;
+			else days_of_month = 30;
+			return days_of_month;
+		}
+
+		function form_list(days_of_month, scores_of_duty, saturdays, sundays, last_date_of_duty, count_of_duties_on_month){
+			var list_of_dates = [];
+			for(var i = 0; i < scores_of_duty.length; i++){
+				list_of_dates[i] = [];
+			}
+			for(var i = 0; i < days_of_month; i++){
+				id = get_min_score_id(scores_of_duty, (i+1), saturdays, sundays, last_date_of_duty, count_of_duties_on_month);
+				list_of_dates[id].push(i+1);
+			}
+			return list_of_dates;
+		}
+		
+		//Saturday = 1
+		//Sunday   = 2
+		//Other    = 0
+		//Check type of day
+		function check_score_of_category(day, saturdays, sundays){
+			console.log(saturdays);
+			for(var i = 0; i < saturdays.length; i++){
+				 if(day == saturdays[i]) return 1;
+			}
+			for(var i = 0; i < sundays.length; i++){
+				if(day == sundays[i]) return 2;
+			}
+			return 0;
+		}
+		//Function for example
+		function get_information(names, scores_of_duty){
+    		document.write("<table border = 1 align = center><tr><td>id</td><td>Name</td><td>Scores Monday</td><td>Scores Saturdays</td><td>Scores Sundays</td></tr>");
+    		for(var i = 0; i < names.length; i++){
+				document.write("<tr><td>" + i + "</td><td>" + names[i] + "</td><td>" + scores_of_duty[i].mon + "</td><td>" + scores_of_duty[i].sat + "</td><td>" + scores_of_duty[i].sun + "</td></tr>");
+    		}
+    		document.write("</table>");
+		}
+	</script>
+</body>
+</html>
